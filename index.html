@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương Trình Điều Khiển Ô Tô</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .car-display {
+            background: #f0f0f0;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .road {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: #555;
+            border-top: 3px dashed #ffeb3b;
+        }
+
+        .car {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+            font-size: 60px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-start {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-speed {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-left {
+            background: #ff9800;
+            color: white;
+            grid-column: 1;
+        }
+
+        .btn-right {
+            background: #ff9800;
+            color: white;
+            grid-column: 3;
+        }
+
+        .btn-brake {
+            background: #e91e63;
+            color: white;
+            grid-column: 2;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .engine-on {
+            color: #4caf50;
+        }
+
+        .engine-off {
+            color: #f44336;
+        }
+
+        .advanced-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .slider-control {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .slider-control label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        @keyframes move-left {
+            0% { left: 50%; }
+            100% { left: 20%; }
+        }
+
+        @keyframes move-right {
+            0% { left: 50%; }
+            100% { left: 80%; }
+        }
+
+        .turn-left {
+            animation: move-left 0.5s forwards;
+        }
+
+        .turn-right {
+            animation: move-right 0.5s forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Chương Trình Điều Khiển Ô Tô</h1>
+
+        <div class="car-display">
+            <div class="car" id="car">🚙</div>
+            <div class="road"></div>
+        </div>
+
+        <div class="status">
+            <div class="status-text">
+                Trạng thái động cơ: <span id="engineStatus" class="engine-off">TẮT</span>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="stat">
+                <div class="stat-label">Tốc độ</div>
+                <div class="stat-value"><span id="speedDisplay">0</span> km/h</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Quãng đường</div>
+                <div class="stat-value"><span id="distanceDisplay">0</span> km</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Nhiên liệu</div>
+                <div class="stat-value"><span id="fuelDisplay">100</span>%</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Nhiệt độ động cơ</div>
+                <div class="stat-value"><span id="tempDisplay">25</span>°C</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn btn-start" onclick="startEngine()">🔑 Khởi động</button>
+            <button class="control-btn btn-speed" onclick="accelerate()">⚡ Tăng tốc</button>
+            <button class="control-btn btn-stop" onclick="stopEngine()">🛑 Tắt máy</button>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn btn-left" onclick="turnLeft()">⬅️ Rẽ trái</button>
+            <button class="control-btn btn-brake" onclick="brake()">🛑 Phanh</button>
+            <button class="control-btn btn-right" onclick="turnRight()">➡️ Rẽ phải</button>
+        </div>
+
+        <div class="advanced-controls">
+            <div class="slider-control">
+                <label for="speedSlider">Điều chỉnh tốc độ:</label>
+                <input type="range" id="speedSlider" min="0" max="200" value="0" oninput="setSpeed(this.value)">
+            </div>
+            <div class="slider-control">
+                <label for="fuelSlider">Mức nhiên liệu:</label>
+                <input type="range" id="fuelSlider" min="0" max="100" value="100" oninput="setFuel(this.value)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let engineOn = false;
+        let speed = 0;
+        let distance = 0;
+        let fuel = 100;
+        let temperature = 25;
+        let distanceInterval = null;
+        let fuelInterval = null;
+
+        function startEngine() {
+            if (fuel <= 0) {
+                alert('Không đủ nhiên liệu để khởi động!');
+                return;
+            }
+            engineOn = true;
+            document.getElementById('engineStatus').textContent = 'BẬT';
+            document.getElementById('engineStatus').className = 'engine-on';
+            temperature = 60;
+            updateDisplay();
+        }
+
+        function stopEngine() {
+            engineOn = false;
+            speed = 0;
+            document.getElementById('engineStatus').textContent = 'TẮT';
+            document.getElementById('engineStatus').className = 'engine-off';
+            document.getElementById('speedSlider').value = 0;
+            temperature = 25;
+            clearInterval(distanceInterval);
+            clearInterval(fuelInterval);
+            updateDisplay();
+        }
+
+        function accelerate() {
+            if (!engineOn) {
+                alert('Vui lòng khởi động động cơ trước!');
+                return;
+            }
+            if (fuel <= 0) {
+                alert('Hết nhiên liệu!');
+                stopEngine();
+                return;
+            }
+            speed = Math.min(speed + 20, 200);
+            temperature = Math.min(temperature + 5, 120);
+            document.getElementById('speedSlider').value = speed;
+            updateDisplay();
+            startDriving();
+        }
+
+        function brake() {
+            speed = Math.max(speed - 30, 0);
+            temperature = Math.max(temperature - 3, 25);
+            document.getElementById('speedSlider').value = speed;
+            updateDisplay();
+            if (speed === 0) {
+                clearInterval(distanceInterval);
+                clearInterval(fuelInterval);
+            }
+        }
+
+        function setSpeed(value) {
+            if (!engineOn) {
+                alert('Vui lòng khởi động động cơ trước!');
+                document.getElementById('speedSlider').value = 0;
+                return;
+            }
+            speed = parseInt(value);
+            temperature = 25 + (speed / 200) * 95;
+            updateDisplay();
+            if (speed > 0) {
+                startDriving();
+            } else {
+                clearInterval(distanceInterval);
+                clearInterval(fuelInterval);
+            }
+        }
+
+        function setFuel(value) {
+            fuel = parseInt(value);
+            updateDisplay();
+            if (fuel <= 0 && engineOn) {
+                stopEngine();
+                alert('Hết nhiên liệu!');
+            }
+        }
+
+        function turnLeft() {
+            if (!engineOn || speed === 0) {
+                alert('Xe phải đang chạy mới có thể rẽ!');
+                return;
+            }
+            const car = document.getElementById('car');
+            car.classList.remove('turn-right');
+            car.classList.add('turn-left');
+            setTimeout(() => {
+                car.classList.remove('turn-left');
+            }, 500);
+        }
+
+        function turnRight() {
+            if (!engineOn || speed === 0) {
+                alert('Xe phải đang chạy mới có thể rẽ!');
+                return;
+            }
+            const car = document.getElementById('car');
+            car.classList.remove('turn-left');
+            car.classList.add('turn-right');
+            setTimeout(() => {
+                car.classList.remove('turn-right');
+            }, 500);
+        }
+
+        function startDriving() {
+            clearInterval(distanceInterval);
+            clearInterval(fuelInterval);
+
+            if (speed > 0) {
+                distanceInterval = setInterval(() => {
+                    distance += speed / 3600;
+                    updateDisplay();
+                }, 1000);
+
+                fuelInterval = setInterval(() => {
+                    fuel -= speed / 10000;
+                    if (fuel <= 0) {
+                        fuel = 0;
+                        stopEngine();
+                        alert('Hết nhiên liệu!');
+                    }
+                    updateDisplay();
+                }, 1000);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('speedDisplay').textContent = Math.round(speed);
+            document.getElementById('distanceDisplay').textContent = distance.toFixed(2);
+            document.getElementById('fuelDisplay').textContent = Math.round(fuel);
+            document.getElementById('tempDisplay').textContent = Math.round(temperature);
+        }
+    </script>
+</body>
+</html>
